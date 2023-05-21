@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Zergling Rush</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="script.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+</head>
+<body>
+  <div id="pReg" class="container">
+    <section id="registrationScreen">
+      <div class="registrationFormContainer">
+        <h2>Player Registration</h2>
+        <form id="registrationForm" onsubmit="return false;">
+          <label for="playerName2">Player 2 Name:</label>
+          <input class ="play2Reg" type="text" id="playerName2" >
+          <br><br>
+          <button id="btnContinue" onclick="registerPlayers()">Continue</button>
+        </form>
+      </div>
+    </section>
+  </div>
+  
+  <script>
+    const socket = io();
+  
+    // Get the code editor elements
+    const editors = document.getElementsByClassName('play2Reg');
+  
+    // Add event listeners to each editor
+    for (let i = 0; i < editors.length; i++) {
+      const editor = editors[i];
+      editor.addEventListener('input', (event) => {
+        const code = event.target.value;
+        socket.emit('code-change', code);
+      });
+    }
+  
+    // Receive code changes from the server
+    socket.on('code-change', (code) => {
+      for (let i = 0; i < editors.length; i++) {
+        const editor = editors[i];
+        if (editor !== document.activeElement) {
+          editor.value = code;
+        }
+      }
+    });
+  </script>
+  <script src="script.js"></script>
+  
+  
+</body>
+</html>

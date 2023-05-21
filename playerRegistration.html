@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Zergling Rush</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="script.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+</head>
+<body>
+  <div id="pReg" class="container">
+    <section id="registrationScreen">
+      <div class="registrationFormContainer">
+        <h2>Player Registration</h2>
+        <form id="registrationForm" onsubmit="return false;">
+          <label for="playerName1">Player 1 Name:</label>
+          <input class ="playReg" type="text" id="playerName1" >
+          <br><br>
+          <button class ="playReg" id="btnContinue" onclick="moveToNextScreen();">Continue</button>
+        </form>
+      </div>
+    </section>
+  </div>
+ 
+  <script>
+   
+      function moveToNextScreen() {
+      // Logic to navigate to the next screen
+      // Replace the following line with the appropriate navigation code
+      localStorage.setItem('player1Name',player1Name );
+      window.location.href = 'player2Registration.html';
+    }
+    const socket = io();
+  
+    // Get the code editor elements
+    const editors = document.getElementsByClassName('playReg');
+  
+    // Add event listeners to each editor
+    for (let i = 0; i < editors.length; i++) {
+      const editor = editors[i];
+      editor.addEventListener('input', (event) => {
+        const code = event.target.value;
+        socket.emit('code-change', code);
+      });
+    }
+  
+    // Receive code changes from the server
+    socket.on('code-change', (code) => {
+      for (let i = 0; i < editors.length; i++) {
+        const editor = editors[i];
+        if (editor !== document.activeElement) {
+          editor.value = code;
+        }
+      }
+    });
+  </script>
+  
+  
+</body>
+</html>
