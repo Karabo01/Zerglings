@@ -1,6 +1,4 @@
 // Global Variables
-var player1Name = localStorage.getItem('player1Name');
-var player2Name = localStorage.getItem('player2Name');
 var questionsContainer = document.getElementById('questionsContainer');
 var playerTurn = document.getElementById('playerTurn');
 var alphabetContainer = document.getElementById('alphabetContainer');
@@ -9,44 +7,62 @@ var pickedLetterDisplay = document.getElementById('pickedLetterDisplay');
 var rushButton = document.getElementById('rushButton');
 var chosenAlphabet = localStorage.getItem('player1Name');
 
-// Function to register players
-function registerPlayers() {
- 
-  // Validate player names
-  if (localStorage.getItem('player1Name')) {
-    // Logic to navigate to the random alphabet screen
-    registerPlayers2();
+
+// Function for Player 1 registration
+function registerPlayer1() {
+  var playerName1 = document.getElementById('playerName1').value;
+
+  // Validate player name
+  if (playerName1) {
+    // Save player name in local storage
+    localStorage.setItem('player1Name', playerName1);
+    localStorage.setItem('currentPlayer', 'player1');
+     console.log(localStorage.getItem("currentPlayer"));
+
+    // Hide Player 1 registration screen
+    player1RegistrationScreen.style.display = 'none';
+
+    // Show Player 2 registration screen
+    player2RegistrationScreen.style.display = 'block';
   } else {
-    alert('Please enter both player names.');
+    alert('Please enter Player 1 name.');
   }
 }
 
-function registerPlayers2() {
-  
+
+// Function for Player 2 registration
+function registerPlayer2() {
   var playerName2 = document.getElementById('playerName2').value;
 
-  // Validate player names
-  if ( playerName2) {
-    // Save player names in localStorage
-   
+  // Validate player name
+  if (playerName2) {
+    // Save player name in local storage
     localStorage.setItem('player2Name', playerName2);
-
-    // Logic to navigate to the random alphabet screen
+    
+    // Navigate to the random alphabet screen or any other desired screen
     window.location.href = 'randomAlphabetScreen.html';
   } else {
-    alert('Please enter both player names.');
+    alert('Please enter Player 2 name.');
   }
 }
+
 
 // Function to start random alphabet animation
 function startRandomAlphabetAnimation() {
   var alphabetContainer = document.getElementById('alphabetContainer');
+  var turnDisplay = document.getElementById('turnDisplay');
 
   var alphabets = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
   var currentIndex = 0;
 
   // Clear the container before starting animation
   alphabetContainer.innerHTML = '';
+
+  var currentPlayer = localStorage.getItem('currentPlayer');
+  var player1Name = localStorage.getItem('player1Name');
+  var player2Name = localStorage.getItem('player2Name');
+
+  turnDisplay.textContent = currentPlayer === 'player1' ? player1Name + "'s Turn" : player2Name + "'s Turn";
 
   alphabetAnimationInterval = setInterval(function() {
     var randomColor = getRandomColor();
@@ -60,7 +76,6 @@ function startRandomAlphabetAnimation() {
     currentIndex = (currentIndex + 1) % alphabets.length;
   }, 100);
 }
-
 
 function getRandomColor() {
   var letters = '0123456789ABCDEF';
@@ -96,13 +111,22 @@ function stopRandomAlphabet() {
   // Get the picked letter
   pickedLetter = document.getElementById('alphabetContainer').innerText;
   document.getElementById('pickedLetterDisplay').innerText = 'Picked Letter: ' + pickedLetter;
+  
 }
 
 // Function to move to the question screen
 function moveToQuestionScreen() {
   // Logic to navigate to the question screen
   // Replace the following line with the appropriate navigation code
-  window.location.href = 'questionScreen.html';
+  let cPlayer = localStorage.getItem("currentPlayer");
+  if(cPlayer=='player1')
+  {
+    window.location.href = 'questionScreen.html';
+  }else{
+    window.location.href = 'questionScreen2.html';
+  }
+  
+  
 }
 
 // Function to generate random color
@@ -140,29 +164,54 @@ function submitAnswers() {
   })) {
     // Logic to process the answers
     // Replace this with your custom logic
-    updateScores(answers,)
+    localStorage.setItem('answers1',answers);
     // Clear the input fields
     answerInputs.forEach(function(input) {
       input.value = '';
     });
 
-    
-    // Get the picked letter
-    var pickedLetter = pickedLetterDisplay.innerText.replace('Picked Letter: ', '');
+    // Save current player and navigate to random letter screen for the next player's turn
+    var currentPlayer = localStorage.getItem('currentPlayer');
+    if (currentPlayer === 'player1') {
+      localStorage.setItem('currentPlayer', 'player2');
+      window.location.href = 'randomAlphabetScreen.html';
+    } else {
+      // Both players have played, navigate to the results screen or any other desired screen
+      window.location.href = 'resultsScreen.html';
+    }
+  } else {
+    alert('Please answer all the questions.');
+  }
+}
 
-    // Iterate through each question
-    var questions = document.querySelectorAll('.question');
-    questions.forEach(function(question) {
-      // Create a new paragraph element to display the question with the chosen letter
-      var questionElement = document.createElement('p');
-      questionElement.textContent = question.innerText + ' Chosen Letter: ' + pickedLetter;
+// Function to handle submitting the answers
+function submitAnswers2() {
+  var answerInputs = document.querySelectorAll('.answer-input');
+  var answers = Array.from(answerInputs).map(function(input) {
+    return input.value.trim();
+  });
 
-      // Append the question element to the questions container
-      questionsContainer.appendChild(questionElement);
+  // Validate if all answers are provided
+  if (answers.every(function(answer) {
+    return answer !== '';
+  })) {
+    // Logic to process the answers
+    // Replace this with your custom logic
+    localStorage.setItem('answers2',answers);
+    // Clear the input fields
+    answerInputs.forEach(function(input) {
+      input.value = '';
     });
 
-    // Move to the next screen
-    moveToNextScreen();
+    // Save current player and navigate to random letter screen for the next player's turn
+    var currentPlayer = localStorage.getItem('currentPlayer');
+    if (currentPlayer === 'player1') {
+      localStorage.setItem('currentPlayer', 'player2');
+      window.location.href = 'score.html';
+    } else {
+      // Both players have played, navigate to the results screen or any other desired screen
+      window.location.href = 'resultsScreen.html';
+    }
   } else {
     alert('Please answer all the questions.');
   }
@@ -177,3 +226,30 @@ function moveToNextScreen() {
 
 // Start the random alphabet animation on page load
 window.onload = startRandomAlphabetAnimation;
+
+// Get player names from player registration screen
+var player1Name = localStorage.getItem('player1Name');
+var player2Name = localStorage.getItem('player2Name');
+
+// Get the current player from localStorage
+var currentPlayer = localStorage.getItem('currentPlayer');
+
+// Set the player's turn at the top of the random letter screen
+var turnDisplay = document.getElementById('turnDisplay');
+turnDisplay.textContent = currentPlayer === 'player1' ? player1Name + "'s Turn" : player2Name + "'s Turn";
+
+// Function to navigate to the questions screen for the next player's turn
+function goToNextPlayerTurn() {
+  if (currentPlayer === 'player1') {
+    localStorage.setItem('currentPlayer', 'player2');
+  } else {
+    localStorage.setItem('currentPlayer', 'player1');
+  }
+  
+  window.location.href = 'questionScreen.html';
+}
+
+// Bind the goToNextPlayerTurn function to the rush button click event
+var rushButton = document.getElementById('rushButton');
+rushButton.addEventListener('click', goToNextPlayerTurn);
+
